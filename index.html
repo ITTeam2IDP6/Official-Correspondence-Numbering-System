@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียนหนังสือ</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body { font-family: 'Kanit', sans-serif; padding: 20px; background-color: #f4f7f6; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #00b900; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3>📄 ออกเลขหนังสือรับ</h3>
+        <input type="text" id="subject" placeholder="ชื่อเรื่อง / ใจความสำคัญ">
+        <input type="text" id="sender" placeholder="จากหน่วยงาน/บุคคล">
+        <button onclick="submitForm()">กดเพื่อออกเลขที่หนังสือ</button>
+    </div>
+
+    <script>
+        const GAS_URL = "URL_ของ_GAS_WEB_APP";
+
+        async function submitForm() {
+            const subject = document.getElementById('subject').value;
+            const sender = document.getElementById('sender').value;
+            if(!subject || !sender) return alert("กรุณากรอกข้อมูลให้ครบ");
+
+            await liff.init({ liffId: "YOUR_LIFF_ID_INDEX" });
+            if (!liff.isLoggedIn()) { liff.login(); return; }
+            const profile = await liff.getProfile();
+
+            fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "register",
+                    subject: subject,
+                    sender: sender,
+                    userId: profile.userId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert("สำเร็จ! เลขที่ของคุณคือ: " + data.bookNo);
+                liff.closeWindow();
+            });
+        }
+    </script>
+</body>
+</html>
