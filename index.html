@@ -3,103 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ลงทะเบียนหนังสือ</title>
+    <title>ระบบออกเลขสารบรรณ</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
-        body { 
-            font-family: 'Kanit', sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            background-color: #f0f2f5; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh;
-        }
-        
-        /* Profile Header */
-        .header {
-            background: linear-gradient(135deg, #00b900 0%, #009900 100%);
-            padding: 30px 20px;
-            text-align: center;
-            color: white;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-        }
-        .profile-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 3px solid white;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
+        body { font-family: 'Kanit', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; display: flex; flex-direction: column; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 30px 20px; text-align: center; color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .profile-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .profile-name { font-size: 1.1rem; font-weight: 600; margin: 5px 0; }
-        .profile-uid { font-size: 0.7rem; opacity: 0.8; }
-
-        /* Form Section */
         .container { padding: 20px; flex: 1; }
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            margin-top: -40px; /* ให้การ์ดเกยขึ้นไปบน header */
-        }
-        h3 { color: #333; margin-top: 0; font-weight: 600; text-align: center; }
-        
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-top: -40px; }
+        h3 { color: #333; margin-top: 0; font-weight: 600; text-align: center; margin-bottom: 20px; }
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.9rem; color: #666; margin-bottom: 5px; margin-left: 5px; }
-        
-        input, textarea {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-family: 'Kanit', sans-serif;
-            background-color: #fafafa;
-            transition: all 0.3s;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #00b900;
-            background-color: white;
-            box-shadow: 0 0 8px rgba(0,185,0,0.1);
-        }
-        
-        button {
-            width: 100%;
-            padding: 16px;
-            background: #00b900;
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(0,185,0,0.3);
-            transition: transform 0.2s;
-        }
-        button:active { transform: scale(0.98); }
-
-        /* Loader */
-        #loader { display: none; text-align: center; margin-top: 10px; color: #666; }
+        input, textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; font-family: 'Kanit', sans-serif; background-color: #fafafa; }
+        input:read-only { background-color: #ececec; color: #777; }
+        button { width: 100%; padding: 16px; background: #4f46e5; color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(79,70,229,0.3); }
+        #loader { display: none; text-align: center; margin-top: 10px; color: #4f46e5; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <img id="pictureUrl" class="profile-img" src="https://via.placeholder.com/80" alt="Profile">
-        <div id="displayName" class="profile-name">Loading...</div>
-        <div id="userId" class="profile-uid">ID: -</div>
+        <div id="displayName" class="profile-name">กำลังโหลดข้อมูล...</div>
+        <div class="text-xs opacity-70" id="userIdDisplay"></div>
     </div>
 
     <div class="container">
         <div class="card">
-            <h3>📝 ลงทะเบียนหนังสือรับ</h3>
+            <h3>📝 ออกเลขหนังสือรับ</h3>
             
             <div class="input-group">
                 <label>จาก (หน่วยงาน/บุคคล)</label>
@@ -117,42 +51,54 @@
             </div>
 
             <div class="input-group">
-                <label>หมายเหตุ (ถ้ามี)</label>
-                <textarea id="note" rows="2" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+                <label>หมายเหตุ</label>
+                <textarea id="note" rows="2" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
             </div>
 
             <div class="input-group">
-                <label>ลงชื่อ (ผู้ลงบันทึก)</label>
-                <input type="text" id="signature" placeholder="ระบุชื่อผู้ลงบันทึก">
+                <label>ผู้ลงบันทึก (อ้างอิงจากข้อมูลลงทะเบียน)</label>
+                <input type="text" id="signature" readonly placeholder="กำลังดึงชื่อจากระบบ...">
             </div>
 
-            <button onclick="submitForm()">ออกเลขที่หนังสือ</button>
-            <div id="loader">กำลังบันทึกข้อมูล...</div>
+            <button onclick="submitForm()" id="btnSubmit">ออกเลขที่หนังสือ</button>
+            <div id="loader">⚙️ กำลังประมวลผล...</div>
         </div>
     </div>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx-U_6vZomGNMObO8GjhdaMsLE2eD7N4QHCm5yz6Gt-tFYiUy_xy2avj0BnQYjuQz-F/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwX1JI3GRKBGKDrD8vHuptf-7o7rQFeiNBo8XuVIkAkSr9zKDqX2sQYXzCpV977Ehl8Dg/exec";
 
         async function initLIFF() {
             try {
-                await liff.init({ liffId: "YOUR_LIFF_ID_INDEX" }); // ใส่ LIFF ID ของคุณ
+                await liff.init({ liffId: "2009632664-3vVVvlJR" }); 
                 if (!liff.isLoggedIn()) {
                     liff.login();
                 } else {
-                    getUserProfile();
+                    checkRegistration();
                 }
-            } catch (err) {
-                console.error('LIFF Init Error', err);
-            }
+            } catch (err) { console.error('LIFF Error', err); }
         }
 
-        async function getUserProfile() {
+        async function checkRegistration() {
             const profile = await liff.getProfile();
-            document.getElementById("displayName").innerText = profile.displayName;
-            document.getElementById("userId").innerText = "ID: " + profile.userId;
             document.getElementById("pictureUrl").src = profile.pictureUrl;
-            document.getElementById("signature").value = profile.displayName; // ใส่ชื่อในช่องลงชื่อให้อัตโนมัติ
+            document.getElementById("userIdDisplay").innerText = profile.userId;
+
+            // ตรวจสอบรายชื่อจากฐานข้อมูล
+            try {
+                const res = await fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`);
+                const data = await res.json();
+
+                if (data.status === "success") {
+                    document.getElementById("displayName").innerText = data.name;
+                    document.getElementById("signature").value = data.name;
+                } else {
+                    alert("❌ คุณยังไม่ได้ลงทะเบียนสมาชิก กรุณาลงทะเบียนก่อนใช้งานครับ");
+                    liff.closeWindow(); // หรือเด้งไปหน้า register
+                }
+            } catch (e) {
+                alert("การเชื่อมต่อขัดข้อง กรุณาลองใหม่");
+            }
         }
 
         async function submitForm() {
@@ -163,10 +109,12 @@
             const signature = document.getElementById('signature').value;
 
             if (!sender || !receiver || !subject || !signature) {
-                return alert("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน");
+                return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
             }
 
             document.getElementById("loader").style.display = "block";
+            document.getElementById("btnSubmit").disabled = true;
+            
             const profile = await liff.getProfile();
 
             const payload = {
@@ -185,13 +133,15 @@
             })
             .then(res => res.json())
             .then(data => {
-                alert("สำเร็จ! เลขที่หนังสือของคุณคือ: " + data.bookNo);
-                liff.closeWindow();
+                if(data.status === "success") {
+                    alert("✅ ออกเลขสำเร็จ!\nเลขที่: " + data.bookNo);
+                    liff.closeWindow();
+                }
             })
             .catch(err => {
-                alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
-                console.error(err);
+                alert("เกิดข้อผิดพลาด");
                 document.getElementById("loader").style.display = "none";
+                document.getElementById("btnSubmit").disabled = false;
             });
         }
 
