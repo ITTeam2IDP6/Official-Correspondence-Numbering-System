@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Config</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #2c3e50; color: white; }
+        .admin-card { background: #34495e; padding: 20px; border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        .btn-update { background: #e67e22; color: white; padding: 10px; width: 100%; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="admin-card">
+        <h2>⚙️ ตั้งค่าเลขสารบรรณ</h2>
+        <label>แก้เลขรับล่าสุดให้เป็น:</label>
+        <input type="number" id="newInNo" placeholder="ระบุตัวเลข เช่น 150">
+        <button class="btn-update" onclick="updateAdmin('IN')">บันทึกการเปลี่ยนเลขรับ</button>
+        
+        <hr style="margin: 20px 0;">
+        
+        <label>แก้คำนำหน้า (Prefix):</label>
+        <input type="text" id="newPrefix" placeholder="เช่น สบ.รับ">
+        <button class="btn-update" onclick="updateAdmin('PREFIX')">บันทึก Prefix</button>
+    </div>
+
+    <script>
+        const GAS_URL = "URL_ของ_GAS_WEB_APP";
+
+        async function updateAdmin(type) {
+            const val = (type === 'IN') ? document.getElementById('newInNo').value : document.getElementById('newPrefix').value;
+            
+            await liff.init({ liffId: "YOUR_LIFF_ID_ADMIN" });
+            const profile = await liff.getProfile();
+
+            fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "adminUpdate",
+                    type: type,
+                    value: val,
+                    userId: profile.userId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "updated") alert("อัปเดตข้อมูลเรียบร้อยแล้ว");
+            });
+        }
+    </script>
+</body>
+</html>
