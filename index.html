@@ -2,129 +2,162 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ระบบออกเลขสารบรรณ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียนสมาชิก - กก.สืบสวน 2 บก.สส.ภ.6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Kanit', sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; display: flex; flex-direction: column; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 30px 20px; text-align: center; color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
-        .profile-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .profile-name { font-size: 1.1rem; font-weight: 600; margin: 5px 0; }
-        .container { padding: 20px; flex: 1; }
-        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-top: -40px; }
-        h3 { color: #333; margin-top: 0; font-weight: 600; text-align: center; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.9rem; color: #666; margin-bottom: 5px; margin-left: 5px; }
-        input, textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 1rem; font-family: 'Kanit', sans-serif; background-color: #fafafa; }
-        input:read-only { background-color: #ececec; color: #777; }
-        button { width: 100%; padding: 16px; background: #4f46e5; color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(79,70,229,0.3); }
-        #loader { display: none; text-align: center; margin-top: 10px; color: #4f46e5; font-weight: bold; }
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: #0f172a; /* พื้นหลังน้ำเงินเข้มมาก */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        input:read-only { 
+            background-color: #f8fafc; 
+            color: #64748b; 
+            cursor: not-allowed; 
+            border-color: #e2e8f0;
+        }
+        select, input {
+            transition: all 0.2s ease-in-out;
+        }
+        select:focus, input:focus {
+            transform: translateY(-1px);
+        }
     </style>
 </head>
-<body>
+<body class="min-h-screen pb-10">
 
-    <div class="header">
-        <img id="pictureUrl" class="profile-img" src="https://via.placeholder.com/80" alt="Profile">
-        <div id="displayName" class="profile-name">กำลังโหลดข้อมูล...</div>
-        <div class="text-xs opacity-70" id="userIdDisplay"></div>
+    <!-- Header Section -->
+    <div class="bg-gradient-to-b from-slate-900 to-indigo-950 h-64 flex flex-col items-center justify-center text-white rounded-b-[4rem] shadow-2xl border-b border-indigo-500/30">
+        <div class="relative">
+            <img id="userImg" class="w-24 h-24 rounded-full border-4 border-indigo-400 shadow-xl mb-3 object-cover" src="https://via.placeholder.com/150" alt="Profile">
+            <div class="absolute bottom-2 right-0 w-6 h-6 bg-green-500 border-4 border-slate-900 rounded-full"></div>
+        </div>
+        <h1 class="text-2xl font-bold tracking-wide">ลงทะเบียนสมาชิก</h1>
+        <p class="text-indigo-300 text-sm mt-1">กก.สืบสวน 2 บก.สส.ภ.6</p>
     </div>
 
-    <div class="container">
-        <div class="card">
-            <h3>📝 ออกเลขหนังสือรับ</h3>
+    <!-- Form Section -->
+    <div class="max-w-md mx-auto px-6 -mt-12">
+        <div class="glass-card rounded-[2.5rem] shadow-2xl p-8 space-y-6">
             
-            <div class="input-group">
-                <label>จาก (หน่วยงาน/บุคคล)</label>
-                <input type="text" id="sender" placeholder="ระบุผู้ส่งต้นทาง">
+            <div class="grid grid-cols-3 gap-3">
+                <div class="col-span-1">
+                    <label class="block text-xs font-semibold text-indigo-900 uppercase mb-1 ml-1">ยศ</label>
+                    <select id="rank" class="w-full px-3 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none bg-white text-sm">
+                        <option value="" disabled selected>เลือก</option>
+                        <optgroup label="ชั้นประทวน">
+                            <option value="ส.ต.ต.">ส.ต.ต.</option>
+                            <option value="ส.ต.ท.">ส.ต.ท.</option>
+                            <option value="ส.ต.อ.">ส.ต.อ.</option>
+                            <option value="จ.ส.ต.">จ.ส.ต.</option>
+                            <option value="ด.ต.">ด.ต.</option>
+                        </optgroup>
+                        <optgroup label="สัญญาบัตร">
+                            <option value="ร.ต.ต.">ร.ต.ต.</option>
+                            <option value="ร.ต.ท.">ร.ต.ท.</option>
+                            <option value="ร.ต.อ.">ร.ต.อ.</option>
+                            <option value="พ.ต.ต.">พ.ต.ต.</option>
+                            <option value="พ.ต.ท.">พ.ต.ท.</option>
+                            <option value="พ.ต.อ.">พ.ต.อ.</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold text-indigo-900 uppercase mb-1 ml-1">ชื่อ-นามสกุล</label>
+                    <input type="text" id="name" placeholder="ระบุชื่อ-นามสกุล" class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                </div>
             </div>
 
-            <div class="input-group">
-                <label>ถึง</label>
-                <input type="text" id="receiver" placeholder="ระบุผู้รับปลายทาง">
+            <div>
+                <label class="block text-xs font-semibold text-indigo-900 uppercase mb-1 ml-1">เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" placeholder="08x-xxxxxxx" class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
             </div>
 
-            <div class="input-group">
-                <label>เรื่อง</label>
-                <input type="text" id="subject" placeholder="ชื่อเรื่อง/ใจความสำคัญ">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1 ml-1">สายงาน</label>
+                    <input type="text" id="jobLine" value="สืบสวน" readonly class="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1 ml-1">สังกัด</label>
+                    <input type="text" id="region" value="ภาค 6" readonly class="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm font-semibold">
+                </div>
             </div>
 
-            <div class="input-group">
-                <label>หมายเหตุ</label>
-                <textarea id="note" rows="2" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1 ml-1">หน่วยงาน</label>
+                <input type="text" id="station" value="กก.สืบสวน 2 บก.สส.ภ.6" readonly class="w-full px-4 py-3 rounded-2xl border border-gray-200 outline-none text-sm font-semibold">
             </div>
 
-            <div class="input-group">
-                <label>ผู้ลงบันทึก (อ้างอิงจากข้อมูลลงทะเบียน)</label>
-                <input type="text" id="signature" readonly placeholder="กำลังดึงชื่อจากระบบ...">
+            <div>
+                <label class="block text-xs font-semibold text-indigo-900 uppercase mb-1 ml-1">Email (Gmail)</label>
+                <input type="email" id="email" placeholder="example@gmail.com" class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
             </div>
 
-            <button onclick="submitForm()" id="btnSubmit">ออกเลขที่หนังสือ</button>
-            <div id="loader">⚙️ กำลังประมวลผล...</div>
+            <button onclick="submitRegister()" id="btnReg" class="w-full bg-indigo-900 hover:bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition transform active:scale-95 flex items-center justify-center text-lg mt-4">
+                <span>บันทึกข้อมูลและเข้าใช้งาน</span>
+            </button>
+            
+            <p class="text-center text-[10px] text-slate-400 uppercase tracking-widest">Digital Police System v2.0</p>
         </div>
     </div>
 
     <script>
+        const LIFF_ID = "2009665125-rCgx9yza"; 
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwX1JI3GRKBGKDrD8vHuptf-7o7rQFeiNBo8XuVIkAkSr9zKDqX2sQYXzCpV977Ehl8Dg/exec";
 
-        async function initLIFF() {
+        async function main() {
             try {
-                await liff.init({ liffId: "2009632664-3vVVvlJR" }); 
+                await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) {
                     liff.login();
                 } else {
-                    checkRegistration();
+                    const profile = await liff.getProfile();
+                    document.getElementById("userImg").src = profile.pictureUrl;
+                    // ไม่ดึงชื่อลงช่อง name อัตโนมัติ เพื่อให้ผู้ใช้พิมพ์ชื่อจริงพร้อมนามสกุลเอง
                 }
-            } catch (err) { console.error('LIFF Error', err); }
+            } catch (err) { console.error(err); }
         }
+        main();
 
-        async function checkRegistration() {
+        async function submitRegister() {
+            const rank = document.getElementById("rank").value;
+            const name = document.getElementById("name").value;
+            const phone = document.getElementById("phone").value;
+            const email = document.getElementById("email").value;
+            const jobLine = document.getElementById("jobLine").value;
+            const station = document.getElementById("station").value;
+            const region = document.getElementById("region").value;
+
+            if (!rank || !name || !phone) {
+                alert("กรุณาเลือกยศ ระบุชื่อ-นามสกุล และเบอร์โทรศัพท์ครับ");
+                return;
+            }
+
+            const btn = document.getElementById("btnReg");
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24"><!-- spinner svg --></svg> กำลังบันทึก...`;
+
             const profile = await liff.getProfile();
-            document.getElementById("pictureUrl").src = profile.pictureUrl;
-            document.getElementById("userIdDisplay").innerText = profile.userId;
-
-            // ตรวจสอบรายชื่อจากฐานข้อมูล
-            try {
-                const res = await fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`);
-                const data = await res.json();
-
-                if (data.status === "success") {
-                    document.getElementById("displayName").innerText = data.name;
-                    document.getElementById("signature").value = data.name;
-                } else {
-                    alert("❌ คุณยังไม่ได้ลงทะเบียนสมาชิก กรุณาลงทะเบียนก่อนใช้งานครับ");
-                    liff.closeWindow(); // หรือเด้งไปหน้า register
-                }
-            } catch (e) {
-                alert("การเชื่อมต่อขัดข้อง กรุณาลองใหม่");
-            }
-        }
-
-        async function submitForm() {
-            const sender = document.getElementById('sender').value;
-            const receiver = document.getElementById('receiver').value;
-            const subject = document.getElementById('subject').value;
-            const note = document.getElementById('note').value;
-            const signature = document.getElementById('signature').value;
-
-            if (!sender || !receiver || !subject || !signature) {
-                return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-            }
-
-            document.getElementById("loader").style.display = "block";
-            document.getElementById("btnSubmit").disabled = true;
             
-            const profile = await liff.getProfile();
+            // รวมยศและชื่อก่อนส่งไป GAS
+            const fullName = rank + name; 
 
             const payload = {
-                action: "register",
-                sender: sender,
-                receiver: receiver,
-                subject: subject,
-                note: note,
-                signature: signature,
-                userId: profile.userId
+                userId: profile.userId,
+                pictureUrl: profile.pictureUrl,
+                name: fullName, 
+                phone: phone,
+                email: email,
+                jobLine: jobLine,
+                station: station,
+                region: region
             };
 
             fetch(GAS_URL, {
@@ -133,19 +166,17 @@
             })
             .then(res => res.json())
             .then(data => {
-                if(data.status === "success") {
-                    alert("✅ ออกเลขสำเร็จ!\nเลขที่: " + data.bookNo);
+                if (data.status === "success") {
+                    alert("ลงทะเบียนสมาชิก กก.สืบสวน 2 เรียบร้อยแล้ว!");
                     liff.closeWindow();
                 }
             })
             .catch(err => {
-                alert("เกิดข้อผิดพลาด");
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("btnSubmit").disabled = false;
+                alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+                btn.disabled = false;
+                btn.innerHTML = "บันทึกข้อมูลและเข้าใช้งาน";
             });
         }
-
-        initLIFF();
     </script>
 </body>
 </html>
