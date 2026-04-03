@@ -12,46 +12,44 @@
             font-family: 'Sarabun', sans-serif; 
             background-color: #f8fafc; 
         }
-        .navy-header { 
-            background-color: #0f172a; 
-        }
-        /* กรอบสีแดงตามคำขอ */
+        /* กรอบสีแดง */
         .input-card-red {
             background: #ffffff;
             border-radius: 16px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 2px solid #ef4444; /* สีแดง Red 500 */
+            border: 2px solid #ef4444;
         }
         .input-label { @apply block text-slate-600 text-[13px] font-bold mb-2 ml-1; }
         .input-style { @apply w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 transition-all; }
         
-        /* ตกแต่งตัวเลขกึ่งกลาง */
-        .book-no-text {
-            font-size: 2.25rem;
-            line-height: 2.5rem;
+        /* สไตล์ข้อความหัวข้อใหม่ */
+        .header-title {
+            font-size: 1.8rem;
             font-weight: 800;
-            color: #ffffff;
-            letter-spacing: -0.025em;
+            color: #0f172a;
+            text-align: center;
         }
     </style>
 </head>
 <body class="min-h-screen">
 
-        <div class="flex flex-col items-center text-center">
-            <p class="text-blue-400 text-[10px] font-bold tracking-[0.5em] uppercase mb-1">ออกเลขหนังสือส่ง</p>
+    <div class="pt-8 pb-6 px-6 relative">
+        <div class="flex flex-col items-center">
+            <p class="text-red-600 text-[10px] font-bold tracking-[0.5em] uppercase mb-1">เลขส่งหนังสือล่าสุด</p>
+            <h1 class="header-title" id="bookNoDisplay">ตช 0021.23/...</h1>
         </div>
-        <div class="absolute top-4 right-4 p-0.5 rounded-full border border-slate-700 bg-slate-800">
-            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-9 h-9 rounded-full object-cover">
+        <div class="absolute top-6 right-6">
+            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover">
         </div>
     </div>
 
-    <div class="max-w-md mx-auto px-6 -mt-6 pb-12 space-y-6">
+    <div class="max-w-md mx-auto px-6 pb-12 space-y-6">
         
         <div class="space-y-4">
-           <div>
-                <label class="input-label text-slate-800">ถึง (Subject) *</label>
+            <div>
+                <label class="input-label text-slate-800">ถึง (หน่วยงานรับ) *</label>
                 <div class="input-card-red p-4">
-                    <input type="text" id="receiver" placeholder="ระบุชื่อหน่วยงานปลายทาง..." class="input-style">
+                    <input type="text" id="receiver" placeholder="ระบุหน่วยงานปลายทาง..." class="input-style">
                 </div>
             </div>
 
@@ -63,111 +61,34 @@
             </div>
         </div>
 
-            <div>
-                <label class="input-label">หมายเหตุ (Note)</label>
-                <div class="input-card-red p-4">
-                    <input type="text" id="note" placeholder="ใส่รายละเอียดเพิ่มเติม (ถ้ามี)" class="input-style">
-                </div>
-                 <div class="space-y-4 pt-2">
+        <div class="space-y-4">
             <div class="flex items-center space-x-2">
                 <div class="w-1 h-4 bg-red-600 rounded-full"></div>
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">ข้อมูลบันทึก</span>
             </div>
-                     
+
+            <div>
+                <label class="input-label">หมายเหตุ (Note)</label>
+                <div class="input-card-red p-4">
+                    <input type="text" id="note" placeholder="..." class="input-style">
+                </div>
             </div>
 
             <div class="bg-slate-100 rounded-2xl p-5 border border-slate-200">
-                <label class="block text-slate-500 text-[11px] font-bold uppercase mb-1">ผู้ดำเนินการ (Sender)</label>
-                <div id="senderLoader" class="text-xs text-gray-400 italic">กำลังโหลดชื่อ...</div>
-                <input type="text" id="senderName" readonly class="bg-transparent w-full text-slate-900 font-bold outline-none cursor-default hidden text-lg">
+                <label class="block text-slate-500 text-[11px] font-bold uppercase mb-1">ผู้ดำเนินการ</label>
+                <input type="text" id="senderName" readonly class="bg-transparent w-full text-slate-900 font-bold outline-none cursor-default text-lg">
             </div>
         </div>
 
         <div class="pt-2">
-            <button onclick="submitData()" id="btnSubmit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-red-200 transition-all active:scale-95 flex items-center justify-center space-x-2">
+            <button onclick="submitData()" id="btnSubmit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center">
                 <span id="btnText" class="text-lg">บันทึกและออกเลข</span>
             </button>
         </div>
     </div>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
-        const LIFF_ID = "2009665125-8ZItMWUW";
-        let userData = {};
-
-        async function init() {
-            try {
-                await liff.init({ liffId: LIFF_ID });
-                if (!liff.isLoggedIn()) liff.login();
-                const profile = await liff.getProfile();
-                userData.userId = profile.userId;
-                document.getElementById("userImg").src = profile.pictureUrl;
-                
-                const res = await fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`);
-                const data = await res.json();
-                
-                const loader = document.getElementById("senderLoader");
-                const input = document.getElementById("senderName");
-                
-                if (data.status === "success") {
-                    input.value = data.name;
-                    input.classList.remove("hidden");
-                    loader.classList.add("hidden");
-                } else {
-                    alert("⚠️ ไม่พบข้อมูลสมาชิก");
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-        init();
-
-        async function submitData() {
-            const receiver = document.getElementById("receiver").value;
-            const subject = document.getElementById("subject").value;
-            const sender = document.getElementById("senderName").value;
-            const note = document.getElementById("note").value;
-
-            if (!receiver || !subject) {
-                alert("❌ กรุณากรอก 'ถึง' และ 'เรื่อง' ครับ");
-                return;
-            }
-
-            const btn = document.getElementById("btnSubmit");
-            const btnText = document.getElementById("btnText");
-            btn.disabled = true;
-            btnText.innerText = "⏳ กำลังออกเลข...";
-
-            const payload = {
-                action: "registerOut",
-                userId: userData.userId,
-                receiver: receiver,
-                subject: subject,
-                sender: sender,
-                note: note || "-"
-            };
-
-            try {
-                const response = await fetch(GAS_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (result.status === "success") {
-                    alert("✅ ออกเลขสำเร็จ: " + result.bookNo);
-                    liff.closeWindow();
-                } else {
-                    alert("❌ ข้อผิดพลาด: " + result.message);
-                    btn.disabled = false;
-                    btnText.innerText = "บันทึกและออกเลข";
-                }
-            } catch (error) {
-                alert("❌ ไม่สามารถติดต่อเซิร์ฟเวอร์ได้");
-                btn.disabled = false;
-                btnText.innerText = "บันทึกและออกเลข";
-            }
-        }
+        // ใช้ Script เดิมที่คุณมีได้เลยครับ (อย่าลืมใส่ GAS_URL และ LIFF_ID)
     </script>
 </body>
 </html>
