@@ -73,32 +73,76 @@
     </div>
 
     <script>
-        // ใส่ GAS_URL และ LIFF_ID เดิมของคุณ
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
-        const LIFF_ID = "2009665125-8ZItMWUW";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
+    const LIFF_ID = "2009665125-8ZItMWUW";
+    let userData = {};
 
-        async function init() {
-            await liff.init({ liffId: LIFF_ID });
-            if (!liff.isLoggedIn()) liff.login();
-            const profile = await liff.getProfile();
-            document.getElementById("userImg").src = profile.pictureUrl;
-            fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        document.getElementById("senderName").value = data.name;
-                    }
-                });
-        }
-        init();
+    async function init() {
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) liff.login();
+        const profile = await liff.getProfile();
+        userData.userId = profile.userId; // เก็บ userId ไว้ส่ง
+        document.getElementById("userImg").src = profile.pictureUrl;
+        
+        // ดึงชื่อสมาชิก
+        fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    document.getElementById("senderName").value = data.name;
+                } else {
+                    alert("⚠️ ไม่พบข้อมูลสมาชิก กรุณาลงทะเบียนก่อนครับ");
+                }
+            });
+    }
+    init();
 
-        async function submitData() {
-            const btn = document.getElementById("btnSubmit");
-            btn.disabled = true;
-            document.getElementById("btnText").innerText = "กำลังประมวลผล...";
-            
-            // ใช้ Logic fetch เดิมที่คุณมี...
+    async function submitData() {
+        const receiver = document.getElementById("receiver").value;
+        const subject = document.getElementById("subject").value;
+        const sender = document.getElementById("senderName").value;
+        const note = document.getElementById("note").value;
+
+        if (!receiver || !subject) {
+            alert("❌ กรุณากรอกข้อมูล 'ถึง' และ 'เรื่อง' ให้ครบถ้วน");
+            return;
         }
-    </script>
+
+        const btn = document.getElementById("btnSubmit");
+        const btnText = document.getElementById("btnText");
+        btn.disabled = true;
+        btnText.innerText = "⏳ กำลังประมวลผล...";
+
+        const payload = {
+            action: "registerOut",
+            userId: userData.userId,
+            receiver: receiver,
+            subject: subject,
+            sender: sender,
+            note: note
+        };
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+
+            if (result.status === "success") {
+                alert("✅ ออกเลขสำเร็จ: " + result.bookNo);
+                liff.closeWindow();
+            } else {
+                alert("❌ เกิดข้อผิดพลาด: " + result.message);
+                btn.disabled = false;
+                btnText.innerText = "บันทึกและออกเลข";
+            }
+        } catch (error) {
+            alert("❌ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+            btn.disabled = false;
+            btnText.innerText = "บันทึกและออกเลข";
+        }
+    }
+</script>
 </body>
 </html>
