@@ -8,109 +8,94 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; }
-        .navy-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-        .input-field { @apply w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all; }
-        .label-text { @apply block text-xs font-bold text-slate-600 uppercase mb-1 ml-1; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #0f172a; }
+        .glass-card { background: rgba(255, 255, 255, 0.98); border-radius: 2.5rem; }
+        .input-box { @apply w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm transition-all; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen pb-10">
 
-    <div class="navy-gradient pb-20 pt-10 px-6 text-center rounded-b-[3rem] shadow-xl">
-        <h1 class="text-white text-2xl font-bold">ออกเลขส่งหนังสือ</h1>
-        <p class="text-blue-300 text-xs mt-2 opacity-80">กก.สืบสวน 2 บก.สส.ภ.6</p>
+    <div class="bg-gradient-to-b from-slate-900 to-blue-900 h-64 flex flex-col items-center justify-center text-white rounded-b-[3.5rem] shadow-2xl relative">
+        <div class="absolute top-6 right-6 flex flex-col items-center">
+            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-12 h-12 rounded-full border-2 border-white shadow-md object-cover">
+            <span id="miniUid" class="text-[8px] mt-1 text-blue-200 opacity-70 uppercase tracking-tighter">UID Loading...</span>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight">ออกเลขส่งหนังสือ</h1>
+        <p class="text-blue-300 text-sm mt-1">ทะเบียนส่ง: ตช 0021.23/...</p>
     </div>
 
-    <div class="max-w-md mx-auto px-6 -mt-12 pb-10">
-        <div class="bg-white rounded-[2rem] shadow-2xl p-8 space-y-5">
+    <div class="max-w-md mx-auto px-6 -mt-16">
+        <div class="glass-card shadow-2xl p-8 space-y-5">
             
             <div>
-                <label class="label-text">จาก (Sender Unit)</label>
-                <input type="text" value="กก.สืบสวน 2 บก.สส.ภ.6" disabled class="input-field bg-gray-50 text-gray-500 font-semibold">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">จาก (Origin)</label>
+                <input type="text" value="กก.สืบสวน 2 บก.สส.ภ.6" disabled class="input-box bg-gray-100 text-gray-500 font-semibold">
             </div>
 
             <div>
-                <label class="label-text">ถึง (Receiver)</label>
-                <input type="text" id="receiver" placeholder="ระบุหน่วยงานปลายทาง" class="input-field">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">ถึง (Receiver) *</label>
+                <input type="text" id="receiver" placeholder="ระบุหน่วยงานปลายทาง" class="input-box">
             </div>
 
             <div>
-                <label class="label-text">เรื่อง (Subject)</label>
-                <textarea id="subject" rows="2" placeholder="ระบุชื่อเรื่องหนังสือ" class="input-field"></textarea>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">เรื่อง (Subject) *</label>
+                <textarea id="subject" rows="2" placeholder="ระบุชื่อเรื่องหนังสือ" class="input-box"></textarea>
             </div>
 
             <div>
-                <label class="label-text">หมายเหตุ (Note / ถ้ามี)</label>
-                <input type="text" id="note" placeholder="ระบุหมายเหตุเพิ่มเติม" class="input-field">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">หมายเหตุ (Note)</label>
+                <input type="text" id="note" placeholder="ระบุหมายเหตุ (ถ้ามี)" class="input-box">
             </div>
 
             <div>
-                <label class="label-text">แนบไฟล์ภาพ / เอกสาร (ถ้ามี)</label>
-                <div class="relative">
-                    <input type="file" id="fileInput" accept="image/*,.pdf" class="hidden" onchange="updateFileName()">
-                    <button onclick="document.getElementById('fileInput').click()" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 text-sm hover:bg-gray-50 transition-all" id="fileNameDisplay">
-                        📸 คลิกเพื่อเลือกไฟล์
-                    </button>
-                </div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">แนบไฟล์ภาพ (ถ้ามี)</label>
+                <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
             </div>
 
             <hr class="border-gray-100">
 
             <div>
-                <label class="label-text text-blue-600">ผู้ส่ง (Authenticated User)</label>
-                <div id="senderLoader" class="text-xs text-gray-400 italic">กำลังดึงข้อมูลสมาชิก...</div>
-                <input type="text" id="senderName" readonly class="input-field bg-blue-50 border-blue-100 text-blue-800 font-bold hidden">
+                <label class="block text-xs font-bold text-blue-600 uppercase mb-1 ml-1">ผู้ดำเนินการ (Sender)</label>
+                <input type="text" id="senderName" readonly class="input-box bg-blue-50 border-blue-100 text-blue-900 font-bold outline-none" placeholder="กำลังโหลดข้อมูลสมาชิก...">
             </div>
 
-            <button onclick="submitData()" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-95 text-lg">
-                ออกเลขหนังสือส่ง
+            <button onclick="submitData()" id="btnSubmit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-xl transition transform active:scale-95 flex items-center justify-center text-lg">
+                <span>ออกเลขหนังสือ</span>
             </button>
         </div>
     </div>
 
     <script>
-        const LIFF_ID = "2009665125-8ZItMWUW"; // ตรวจสอบว่าตรงกับหน้าออกเลขรับ
+        const LIFF_ID = "2009665125-8ZItMWUW"; // ตรวจสอบ LIFF ID ของคุณ
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
 
-        let userProfile = {};
+        let currentUser = {};
 
-        async function initLiff() {
+        async function main() {
             await liff.init({ liffId: LIFF_ID });
             if (!liff.isLoggedIn()) {
                 liff.login();
             } else {
                 const profile = await liff.getProfile();
-                userProfile.userId = profile.userId;
-                getMemberInfo(profile.userId);
+                currentUser.userId = profile.userId;
+                document.getElementById("miniUid").innerText = profile.userId.substring(0, 15) + "...";
+                fetchMemberData(profile.userId);
             }
         }
-        initLiff();
+        main();
 
-        // ดึงชื่อสมาชิกจาก Google Sheet
-        function getMemberInfo(uid) {
+        function fetchMemberData(uid) {
             fetch(`${GAS_URL}?action=getMember&userId=${uid}`)
                 .then(res => res.json())
                 .then(data => {
-                    const loader = document.getElementById("senderLoader");
-                    const input = document.getElementById("senderName");
                     if (data.status === "success") {
-                        input.value = data.name;
-                        input.classList.remove("hidden");
-                        loader.classList.add("hidden");
+                        document.getElementById("senderName").value = data.name;
+                        document.getElementById("userImg").src = data.pictureUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
                     } else {
-                        alert("⚠️ คุณยังไม่ได้ลงทะเบียนสมาชิก!\nระบบจะพาไปหน้าลงทะเบียน");
-                        window.location.href = "register.html";
+                        alert("ไม่พบข้อมูลสมาชิก! กรุณาลงทะเบียนก่อน");
+                        liff.closeWindow();
                     }
                 });
-        }
-
-        function updateFileName() {
-            const input = document.getElementById('fileInput');
-            const display = document.getElementById('fileNameDisplay');
-            if(input.files.length > 0) {
-                display.innerText = "📁 " + input.files[0].name;
-                display.classList.add("text-blue-600", "border-blue-300");
-            }
         }
 
         async function submitData() {
@@ -121,13 +106,13 @@
             const fileInput = document.getElementById("fileInput");
 
             if (!receiver || !subject) {
-                alert("❌ กรุณาระบุ 'ถึง' และ 'เรื่อง'");
+                alert("กรุณากรอกข้อมูล 'ถึง' และ 'เรื่อง' ให้ครบถ้วน");
                 return;
             }
 
             const btn = document.getElementById("btnSubmit");
             btn.disabled = true;
-            btn.innerHTML = "⌛ กำลังบันทึกข้อมูล...";
+            btn.innerHTML = "⏳ กำลังออกเลข...";
 
             let fileData = null;
             let fileName = "";
@@ -139,7 +124,7 @@
 
             const payload = {
                 action: "registerOut",
-                userId: userProfile.userId,
+                userId: currentUser.userId,
                 receiver: receiver,
                 subject: subject,
                 note: note,
@@ -155,18 +140,17 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert("✅ ออกเลขส่งสำเร็จ: " + data.bookNo);
+                    alert("ออกเลขส่งสำเร็จ: " + data.bookNo);
                     liff.closeWindow();
                 } else {
                     alert("เกิดข้อผิดพลาด: " + data.message);
                     btn.disabled = false;
-                    btn.innerText = "ออกเลขหนังสือส่ง";
+                    btn.innerHTML = "ออกเลขหนังสือ";
                 }
             })
             .catch(err => {
-                alert("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+                alert("เกิดข้อผิดพลาดการเชื่อมต่อ");
                 btn.disabled = false;
-                btn.innerText = "ออกเลขหนังสือส่ง";
             });
         }
 
