@@ -90,88 +90,91 @@
     </div>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
-        const LIFF_ID = "2009665125-8ZItMWUW";
-        let userData = {};
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
+    const LIFF_ID = "2009665125-8ZItMWUW";
+    let userData = {};
 
-        async function init() {
-            try {
-                await liff.init({ liffId: LIFF_ID });
-                if (!liff.isLoggedIn()) {
-                    liff.login();
-                    return;
-                }
-                const profile = await liff.getProfile();
-                userData.userId = profile.userId;
-                document.getElementById("userImg").src = profile.pictureUrl;
-                
-                const res = await fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`);
-                const data = await res.json();
-                
-                const loader = document.getElementById("senderLoader");
-                const input = document.getElementById("senderName");
-                
-                if (data.status === "success") {
-                    input.value = data.name;
-                    input.classList.remove("hidden");
-                    loader.classList.add("hidden");
-                } else {
-                    alert("⚠️ ไม่พบข้อมูลสมาชิกในระบบ");
-                }
-            } catch (err) {
-                console.error("Liff Init Error:", err);
-            }
-        }
-        
-        init();
-
-        async function submitData() {
-            const receiver = document.getElementById("receiver").value;
-            const subject = document.getElementById("subject").value;
-            const sender = document.getElementById("senderName").value;
-            const note = document.getElementById("note").value;
-
-            if (!receiver || !subject) {
-                alert("❌ กรุณากรอก 'ถึง' และ 'เรื่อง' ให้ครบถ้วน");
+    async function init() {
+        try {
+            await liff.init({ liffId: LIFF_ID });
+            if (!liff.isLoggedIn()) {
+                liff.login();
                 return;
             }
-
-            const btn = document.getElementById("btnSubmit");
-            const btnText = document.getElementById("btnText");
+            const profile = await liff.getProfile();
+            userData.userId = profile.userId;
+            userData.pictureUrl = profile.pictureUrl; // เก็บรูปโปรไฟล์ไว้ส่งไป GAS
+            document.getElementById("userImg").src = profile.pictureUrl;
             
-            btn.disabled = true;
-            btnText.innerText = "⏳ กำลังออกเลข...";
+            const res = await fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`);
+            const data = await res.json();
+            
+            const loader = document.getElementById("senderLoader");
+            const input = document.getElementById("senderName");
+            
+            if (data.status === "success") {
+                input.value = data.name;
+                input.classList.remove("hidden");
+                loader.classList.add("hidden");
+            } else {
+                alert("⚠️ ไม่พบข้อมูลสมาชิกในระบบ");
+            }
+        } catch (err) {
+            console.error("Liff Init Error:", err);
+        }
+    }
+    
+    init();
 
-            const payload = {
-                action: "registerOut",
-                userId: userData.userId,
-                receiver: receiver,
-                subject: subject,
-                sender: sender,
-                note: note || "-"
-            };
+    async function submitData() {
+        const receiver = document.getElementById("receiver").value;
+        const subject = document.getElementById("subject").value;
+        const sender = document.getElementById("senderName").value;
+        const note = document.getElementById("note").value;
 
-            try {
-                const response = await fetch(GAS_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
+        if (!receiver || !subject) {
+            alert("❌ กรุณากรอก 'ถึง' และ 'เรื่อง' ให้ครบถ้วน");
+            return;
+        }
 
-                if (result.status === "success") {
-                    alert("✅ ออกเลขสำเร็จ: " + result.bookNo);
-                    liff.closeWindow();
-                } else {
-                    alert("❌ ข้อผิดพลาด: " + result.message);
-                    btn.disabled = false;
-                    btnText.innerText = "บันทึกและออกเลข";
-                }
-            } catch (error) {
-                alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+        const btn = document.getElementById("btnSubmit");
+        const btnText = document.getElementById("btnText");
+        
+        btn.disabled = true;
+        btnText.innerText = "⏳ กำลังออกเลข...";
+
+        const payload = {
+            action: "registerOut",
+            userId: userData.userId,
+            pictureUrl: userData.pictureUrl, // ส่ง URL รูปภาพไปด้วย
+            receiver: receiver,
+            subject: subject,
+            sender: sender,
+            note: note || "-"
+        };
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+
+            if (result.status === "success") {
+                alert("✅ ออกเลขสำเร็จ: " + result.bookNo);
+                // รีเฟรชหน้าจอเพื่อให้พร้อมสำหรับการออกเลขถัดไป
+                window.location.reload(); 
+            } else {
+                alert("❌ ข้อผิดพลาด: " + result.message);
                 btn.disabled = false;
                 btnText.innerText = "บันทึกและออกเลข";
             }
+        } catch (error) {
+            alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+            btn.disabled = false;
+            btnText.innerText = "บันทึกและออกเลข";
         }
-    </script>
+    }
+</script>
 </body>
 </html>
