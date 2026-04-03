@@ -8,112 +8,144 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #0f172a; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f1f5f9; }
+        .navy-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .input-field { @apply w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm transition-all; }
+        .label-text { @apply block text-xs font-bold text-slate-600 uppercase mb-1 ml-1; }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="min-h-screen">
 
-    <div class="bg-gradient-to-b from-slate-900 to-blue-900 h-52 flex flex-col items-center justify-center text-white rounded-b-[3rem] shadow-2xl">
-        <h1 class="text-2xl font-bold">ออกเลขส่งหนังสือ</h1>
-        <p class="text-blue-300 text-sm mt-1" id="userNameDisplay">กำลังโหลดข้อมูลผู้ส่ง...</p>
+    <div class="navy-gradient pb-20 pt-10 px-6 text-center rounded-b-[3rem] shadow-xl">
+        <h1 class="text-white text-2xl font-bold">ออกเลขส่งหนังสือ</h1>
+        <p class="text-blue-300 text-xs mt-2 opacity-80">กก.สืบสวน 2 บก.สส.ภ.6</p>
     </div>
 
-    <div class="max-w-md mx-auto px-6 -mt-12">
-        <div class="glass-card rounded-[2.5rem] shadow-2xl p-8 space-y-5">
+    <div class="max-w-md mx-auto px-6 -mt-12 pb-10">
+        <div class="bg-white rounded-[2rem] shadow-2xl p-8 space-y-5">
             
             <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">เรื่อง (Subject)</label>
-                <textarea id="subject" rows="2" placeholder="ระบุชื่อเรื่องหนังสือ" class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm"></textarea>
+                <label class="label-text">จาก (Sender Unit)</label>
+                <input type="text" value="กก.สืบสวน 2 บก.สส.ภ.6" disabled class="input-field bg-gray-50 text-gray-500 font-semibold">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">ถึง (Receiver)</label>
-                <input type="text" id="receiver" placeholder="ระบุหน่วยงานปลายทาง" class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-blue-600 outline-none text-sm">
+                <label class="label-text">ถึง (Receiver)</label>
+                <input type="text" id="receiver" placeholder="ระบุหน่วยงานปลายทาง" class="input-field">
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">แนบไฟล์เอกสาร (PDF/รูปภาพ)</label>
-                <input type="file" id="fileInput" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                <label class="label-text">เรื่อง (Subject)</label>
+                <textarea id="subject" rows="2" placeholder="ระบุชื่อเรื่องหนังสือ" class="input-field"></textarea>
+            </div>
+
+            <div>
+                <label class="label-text">หมายเหตุ (Note / ถ้ามี)</label>
+                <input type="text" id="note" placeholder="ระบุหมายเหตุเพิ่มเติม" class="input-field">
+            </div>
+
+            <div>
+                <label class="label-text">แนบไฟล์ภาพ / เอกสาร (ถ้ามี)</label>
+                <div class="relative">
+                    <input type="file" id="fileInput" accept="image/*,.pdf" class="hidden" onchange="updateFileName()">
+                    <button onclick="document.getElementById('fileInput').click()" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 text-sm hover:bg-gray-50 transition-all" id="fileNameDisplay">
+                        📸 คลิกเพื่อเลือกไฟล์
+                    </button>
+                </div>
             </div>
 
             <hr class="border-gray-100">
 
             <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1 ml-1">ผู้ส่ง (Sender)</label>
-                <input type="text" id="senderName" readonly class="w-full px-4 py-3 rounded-2xl border border-gray-100 bg-gray-50 text-gray-500 text-sm font-semibold outline-none">
+                <label class="label-text text-blue-600">ผู้ส่ง (Authenticated User)</label>
+                <div id="senderLoader" class="text-xs text-gray-400 italic">กำลังดึงข้อมูลสมาชิก...</div>
+                <input type="text" id="senderName" readonly class="input-field bg-blue-50 border-blue-100 text-blue-800 font-bold hidden">
             </div>
 
-            <button onclick="submitSendBook()" id="btnSubmit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-xl transition transform active:scale-95 flex items-center justify-center text-lg">
-                <span>ออกเลขส่งหนังสือ</span>
+            <button onclick="submitData()" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition transform active:scale-95 text-lg">
+                ออกเลขหนังสือส่ง
             </button>
-
-            <p class="text-center text-[10px] text-slate-400 uppercase tracking-widest">ระบบทะเบียนส่งอิเล็กทรอนิกส์</p>
         </div>
     </div>
 
     <script>
-        const LIFF_ID = "2009665125-8ZItMWUW"; // ใช้ LIFF ID เดิม
+        const LIFF_ID = "2009665125-8ZItMWUW"; // ตรวจสอบว่าตรงกับหน้าออกเลขรับ
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
 
-        let currentUser = {};
+        let userProfile = {};
 
-        async function main() {
+        async function initLiff() {
             await liff.init({ liffId: LIFF_ID });
             if (!liff.isLoggedIn()) {
                 liff.login();
             } else {
                 const profile = await liff.getProfile();
-                currentUser.userId = profile.userId;
-                checkMember(profile.userId);
+                userProfile.userId = profile.userId;
+                getMemberInfo(profile.userId);
             }
         }
-        main();
+        initLiff();
 
-        // ตรวจสอบว่าเป็นสมาชิกหรือไม่ เพื่อดึงชื่อยศมาใส่ช่อง Sender
-        function checkMember(uid) {
+        // ดึงชื่อสมาชิกจาก Google Sheet
+        function getMemberInfo(uid) {
             fetch(`${GAS_URL}?action=getMember&userId=${uid}`)
                 .then(res => res.json())
                 .then(data => {
+                    const loader = document.getElementById("senderLoader");
+                    const input = document.getElementById("senderName");
                     if (data.status === "success") {
-                        document.getElementById("senderName").value = data.name;
-                        document.getElementById("userNameDisplay").innerText = "ผู้ส่ง: " + data.name;
+                        input.value = data.name;
+                        input.classList.remove("hidden");
+                        loader.classList.add("hidden");
                     } else {
-                        alert("ไม่พบข้อมูลสมาชิก กรุณาลงทะเบียนก่อน");
-                        window.location.href = "register.html"; // ส่งไปหน้าลงทะเบียน
+                        alert("⚠️ คุณยังไม่ได้ลงทะเบียนสมาชิก!\nระบบจะพาไปหน้าลงทะเบียน");
+                        window.location.href = "register.html";
                     }
                 });
         }
 
-        async function submitSendBook() {
-            const subject = document.getElementById("subject").value;
+        function updateFileName() {
+            const input = document.getElementById('fileInput');
+            const display = document.getElementById('fileNameDisplay');
+            if(input.files.length > 0) {
+                display.innerText = "📁 " + input.files[0].name;
+                display.classList.add("text-blue-600", "border-blue-300");
+            }
+        }
+
+        async function submitData() {
             const receiver = document.getElementById("receiver").value;
+            const subject = document.getElementById("subject").value;
+            const note = document.getElementById("note").value;
             const sender = document.getElementById("senderName").value;
             const fileInput = document.getElementById("fileInput");
 
-            if (!subject || !receiver) {
-                alert("กรุณากรอกข้อมูล เรื่อง และ ถึง ให้ครบถ้วน");
+            if (!receiver || !subject) {
+                alert("❌ กรุณาระบุ 'ถึง' และ 'เรื่อง'");
                 return;
             }
 
             const btn = document.getElementById("btnSubmit");
             btn.disabled = true;
-            btn.innerHTML = "กำลังบันทึก...";
+            btn.innerHTML = "⌛ กำลังบันทึกข้อมูล...";
 
             let fileData = null;
+            let fileName = "";
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
+                fileName = file.name;
                 fileData = await toBase64(file);
             }
 
             const payload = {
-                action: "registerOut", // แยก Action สำหรับเลขส่ง
-                userId: currentUser.userId,
-                subject: subject,
-                sender: sender,
+                action: "registerOut",
+                userId: userProfile.userId,
                 receiver: receiver,
-                fileData: fileData, // ส่งไฟล์เข้า GAS ไปเซฟลง Drive
-                fileName: fileInput.files.length > 0 ? fileInput.files[0].name : ""
+                subject: subject,
+                note: note,
+                sender: sender,
+                fileData: fileData,
+                fileName: fileName
             };
 
             fetch(GAS_URL, {
@@ -123,14 +155,18 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert("ออกเลขส่งหนังสือสำเร็จ: " + data.bookNo);
+                    alert("✅ ออกเลขส่งสำเร็จ: " + data.bookNo);
                     liff.closeWindow();
+                } else {
+                    alert("เกิดข้อผิดพลาด: " + data.message);
+                    btn.disabled = false;
+                    btn.innerText = "ออกเลขหนังสือส่ง";
                 }
             })
             .catch(err => {
-                alert("เกิดข้อผิดพลาด");
+                alert("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
                 btn.disabled = false;
-                btn.innerHTML = "ออกเลขส่งหนังสือ";
+                btn.innerText = "ออกเลขหนังสือส่ง";
             });
         }
 
