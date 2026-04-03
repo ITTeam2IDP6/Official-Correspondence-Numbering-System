@@ -10,101 +10,116 @@
     <style>
         body { 
             font-family: 'Sarabun', sans-serif; 
-            background-color: #f1f5f9; 
+            background-color: #f8fafc; 
         }
         .navy-header { 
             background-color: #0f172a; 
         }
-        .input-card {
+        /* กรอบสีแดงตามคำขอ */
+        .input-card-red {
             background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 2px solid #ef4444; /* สีแดง Red 500 */
         }
-        .input-label { @apply block text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-2 ml-1; }
-        .input-style { @apply w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all; }
+        .input-label { @apply block text-slate-600 text-[13px] font-bold mb-2 ml-1; }
+        .input-style { @apply w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 transition-all; }
+        
+        /* ตกแต่งตัวเลขกึ่งกลาง */
+        .book-no-text {
+            font-size: 2.25rem;
+            line-height: 2.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+        }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <div class="navy-header pt-8 pb-16 px-6 rounded-b-[3rem] shadow-xl relative">
-        <div class="flex flex-col items-center">
-            <h1 class="text-white text-3xl font-extrabold tracking-tight" id="bookNoDisplay">ตช 0021.23/...</h1>
-            <p class="text-blue-300 text-[10px] font-bold tracking-[3px] uppercase mt-2">เลขส่งหนังสือล่าสุด</p>
+    <div class="navy-header pt-10 pb-14 px-6 rounded-b-[2.5rem] shadow-xl relative">
+        <div class="flex flex-col items-center text-center">
+            <p class="text-blue-400 text-[10px] font-bold tracking-[0.5em] uppercase mb-1">ออกเลขหนังสือส่ง</p>
         </div>
-        <div class="absolute top-6 right-6 p-1 rounded-full border-2 border-slate-700 bg-slate-800">
-            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-10 h-10 rounded-full object-cover">
+        <div class="absolute top-4 right-4 p-0.5 rounded-full border border-slate-700 bg-slate-800">
+            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-9 h-9 rounded-full object-cover">
         </div>
     </div>
 
-    <div class="max-w-md mx-auto px-6 -mt-10 pb-12 space-y-5">
+    <div class="max-w-md mx-auto px-6 -mt-6 pb-12 space-y-6">
         
-        <div class="flex items-center space-x-2 pt-2">
-            <div class="w-1.5 h-4 bg-blue-600 rounded-full"></div>
-            <span class="text-sm font-bold text-slate-800 uppercase tracking-wide">รายละเอียดหนังสือ</span>
+        <div class="space-y-4">
+            <div>
+                <label class="input-label text-slate-800">ถึง (หน่วยงานรับ) *</label>
+                <div class="input-card-red p-4">
+                    <input type="text" id="receiver" placeholder="ระบุชื่อหน่วยงานปลายทาง..." class="input-style">
+                </div>
+            </div>
+
+            <div>
+                <label class="input-label text-slate-800">เรื่อง (Subject) *</label>
+                <div class="input-card-red p-4">
+                    <textarea id="subject" rows="2" placeholder="ระบุชื่อเรื่องหนังสือ..." class="input-style"></textarea>
+                </div>
+            </div>
         </div>
 
-        <div class="input-card p-6">
-            <label class="input-label">ถึง (หน่วยงานรับ) *</label>
-            <input type="text" id="receiver" placeholder="ระบุหน่วยงานปลายทาง..." class="input-style">
+            <div>
+                <label class="input-label">หมายเหตุ (Note)</label>
+                <div class="input-card-red p-4">
+                    <input type="text" id="note" placeholder="ใส่รายละเอียดเพิ่มเติม (ถ้ามี)" class="input-style">
+                </div>
+                 <div class="space-y-4 pt-2">
+            <div class="flex items-center space-x-2">
+                <div class="w-1 h-4 bg-red-600 rounded-full"></div>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">ข้อมูลบันทึก</span>
+            </div>
+                     
+            </div>
+
+            <div class="bg-slate-100 rounded-2xl p-5 border border-slate-200">
+                <label class="block text-slate-500 text-[11px] font-bold uppercase mb-1">ผู้ดำเนินการ (Sender)</label>
+                <div id="senderLoader" class="text-xs text-gray-400 italic">กำลังโหลดชื่อ...</div>
+                <input type="text" id="senderName" readonly class="bg-transparent w-full text-slate-900 font-bold outline-none cursor-default hidden text-lg">
+            </div>
         </div>
 
-        <div class="input-card p-6">
-            <label class="input-label">เรื่อง (Subject) *</label>
-            <textarea id="subject" rows="2" placeholder="ระบุชื่อเรื่องหนังสือ..." class="input-style"></textarea>
-        </div>
-
-        <div class="flex items-center space-x-2 pt-3">
-            <div class="w-1.5 h-4 bg-blue-600 rounded-full"></div>
-            <span class="text-sm font-bold text-slate-800 uppercase tracking-wide">ข้อมูลผู้บันทึก</span>
-        </div>
-
-        <div class="input-card p-6">
-            <label class="input-label">หมายเหตุ (Note / ถ้ามี)</label>
-            <input type="text" id="note" placeholder="..." class="input-style">
-        </div>
-
-        <div class="input-card p-6 bg-slate-50">
-            <label class="input-label text-blue-600">ผู้ดำเนินการ (Sender)</label>
-            <div id="senderLoader" class="text-xs text-gray-400 italic">กำลังดึงข้อมูลสมาชิก...</div>
-            <input type="text" id="senderName" readonly class="bg-transparent w-full text-blue-900 font-bold outline-none cursor-default hidden">
-        </div>
-
-        <div class="pt-4">
-            <button onclick="submitData()" id="btnSubmit" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2">
+        <div class="pt-2">
+            <button onclick="submitData()" id="btnSubmit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-red-200 transition-all active:scale-95 flex items-center justify-center space-x-2">
                 <span id="btnText" class="text-lg">บันทึกและออกเลข</span>
             </button>
         </div>
     </div>
 
     <script>
-        // ใส่ GAS_URL และ LIFF_ID เดิมของคุณ
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
         const LIFF_ID = "2009665125-8ZItMWUW";
         let userData = {};
 
         async function init() {
-            await liff.init({ liffId: LIFF_ID });
-            if (!liff.isLoggedIn()) liff.login();
-            const profile = await liff.getProfile();
-            userData.userId = profile.userId;
-            document.getElementById("userImg").src = profile.pictureUrl;
-            
-            // ดึงชื่อสมาชิก
-            fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`)
-                .then(res => res.json())
-                .then(data => {
-                    const loader = document.getElementById("senderLoader");
-                    const input = document.getElementById("senderName");
-                    if (data.status === "success") {
-                        input.value = data.name;
-                        input.classList.remove("hidden");
-                        loader.classList.add("hidden");
-                    } else {
-                        alert("⚠️ ไม่พบข้อมูลสมาชิก กรุณาลงทะเบียนก่อนครับ");
-                        window.location.href = "register.html";
-                    }
-                });
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) liff.login();
+                const profile = await liff.getProfile();
+                userData.userId = profile.userId;
+                document.getElementById("userImg").src = profile.pictureUrl;
+                
+                const res = await fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`);
+                const data = await res.json();
+                
+                const loader = document.getElementById("senderLoader");
+                const input = document.getElementById("senderName");
+                
+                if (data.status === "success") {
+                    input.value = data.name;
+                    input.classList.remove("hidden");
+                    loader.classList.add("hidden");
+                } else {
+                    alert("⚠️ ไม่พบข้อมูลสมาชิก");
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
         init();
 
@@ -115,14 +130,14 @@
             const note = document.getElementById("note").value;
 
             if (!receiver || !subject) {
-                alert("❌ กรุณากรอกข้อมูล 'ถึง' และ 'เรื่อง' ให้ครบถ้วน");
+                alert("❌ กรุณากรอก 'ถึง' และ 'เรื่อง' ครับ");
                 return;
             }
 
             const btn = document.getElementById("btnSubmit");
             const btnText = document.getElementById("btnText");
             btn.disabled = true;
-            btnText.innerText = "⏳ กำลังประมวลผล...";
+            btnText.innerText = "⏳ กำลังออกเลข...";
 
             const payload = {
                 action: "registerOut",
@@ -130,7 +145,7 @@
                 receiver: receiver,
                 subject: subject,
                 sender: sender,
-                note: note
+                note: note || "-"
             };
 
             try {
@@ -144,12 +159,12 @@
                     alert("✅ ออกเลขสำเร็จ: " + result.bookNo);
                     liff.closeWindow();
                 } else {
-                    alert("❌ เกิดข้อผิดพลาด: " + result.message);
+                    alert("❌ ข้อผิดพลาด: " + result.message);
                     btn.disabled = false;
                     btnText.innerText = "บันทึกและออกเลข";
                 }
             } catch (error) {
-                alert("❌ เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+                alert("❌ ไม่สามารถติดต่อเซิร์ฟเวอร์ได้");
                 btn.disabled = false;
                 btnText.innerText = "บันทึกและออกเลข";
             }
