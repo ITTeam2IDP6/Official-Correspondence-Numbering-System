@@ -6,38 +6,42 @@
     <title>ทะเบียนส่ง - กก.สืบสวน 2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         body { 
             font-family: 'Sarabun', sans-serif; 
             background-color: #f8fafc; 
         }
-        /* กรอบสีแดงตามคำขอ */
+        /* หัวข้อส่วนหัว: สีน้ำเงินเข้ม ตัวหนาพิเศษ ขนาดใหญ่ */
+        .header-main-title {
+            font-size: 2.2rem; /* ขนาดใหญ่กว่าปกติ */
+            font-weight: 800;   /* ตัวหนาพิเศษ */
+            color: #0f172a;    /* สีน้ำเงินเข้ม (Navy) */
+            text-align: center;
+            line-height: 1.2;
+        }
+        /* กรอบสีแดง */
         .input-card-red {
             background: #ffffff;
             border-radius: 16px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 2px solid #ef4444; /* สีแดง Red 500 */
+            border: 2px solid #ef4444; 
         }
         .input-label { @apply block text-slate-600 text-[13px] font-bold mb-2 ml-1; }
         .input-style { @apply w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 transition-all; }
-        
-        .header-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #0f172a;
-            text-align: center;
-        }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <div class="pt-8 pb-6 px-6 relative">
-        <div class="flex flex-col items-center text-center">
-            <p class="text-red-600 text-[10px] font-bold tracking-[0.5em] uppercase mb-1">ออกเลขหนังสือส่ง</p>
+    <div class="pt-10 pb-8 px-6 relative">
+        <div class="flex flex-col items-center">
+            <h1 class="header-main-title">ออกเลขหนังสือส่ง</h1>
+            <div class="mt-2 flex flex-col items-center">
+                <span class="text-slate-400 text-[10px] font-bold tracking-[0.3em] uppercase">เลขที่ล่าสุด</span>
+            </div>
         </div>
-        <div class="absolute top-6 right-6 p-0.5 rounded-full border border-slate-200 bg-white shadow-sm">
-            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-10 h-10 rounded-full object-cover">
+        <div class="absolute top-6 right-6">
+            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="w-10 h-10 rounded-full border border-slate-200 shadow-sm object-cover">
         </div>
     </div>
 
@@ -72,27 +76,25 @@
                 </div>
             </div>
 
-            <div class="bg-slate-100 rounded-2xl p-5 border border-slate-200">
+            <div class="bg-slate-100 rounded-2xl p-5 border border-slate-200 shadow-inner">
                 <label class="block text-slate-500 text-[11px] font-bold uppercase mb-1">ผู้ดำเนินการ (Sender)</label>
-                <div id="senderLoader" class="text-xs text-gray-400 italic text-center">กำลังโหลดชื่อ...</div>
+                <div id="senderLoader" class="text-xs text-gray-400 italic">กำลังโหลดชื่อ...</div>
                 <input type="text" id="senderName" readonly class="bg-transparent w-full text-slate-900 font-bold outline-none cursor-default hidden text-lg">
             </div>
         </div>
 
         <div class="pt-2">
-            <button onclick="submitData()" id="btnSubmit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2">
+            <button onclick="submitData()" id="btnSubmit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-red-100 transition-all active:scale-95 flex items-center justify-center space-x-2">
                 <span id="btnText" class="text-lg">บันทึกและออกเลข</span>
             </button>
         </div>
     </div>
 
     <script>
-        // ข้อมูลการเชื่อมต่อ
         const GAS_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
         const LIFF_ID = "2009665125-8ZItMWUW";
         let userData = {};
 
-        // ฟังก์ชันเริ่มต้น LIFF และดึงข้อมูลโปรไฟล์
         async function init() {
             try {
                 await liff.init({ liffId: LIFF_ID });
@@ -104,7 +106,6 @@
                 userData.userId = profile.userId;
                 document.getElementById("userImg").src = profile.pictureUrl;
                 
-                // ดึงชื่อจากฐานข้อมูล Members ใน Google Sheet
                 const res = await fetch(`${GAS_URL}?action=getMember&userId=${profile.userId}`);
                 const data = await res.json();
                 
@@ -117,24 +118,20 @@
                     loader.classList.add("hidden");
                 } else {
                     alert("⚠️ ไม่พบข้อมูลสมาชิกในระบบ");
-                    // liff.closeWindow(); // หรือส่งไปหน้าลงทะเบียน
                 }
             } catch (err) {
                 console.error("Liff Init Error:", err);
             }
         }
         
-        // เรียกใช้งานฟังก์ชัน init เมื่อเปิดหน้าเว็บ
         init();
 
-        // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script
         async function submitData() {
             const receiver = document.getElementById("receiver").value;
             const subject = document.getElementById("subject").value;
             const sender = document.getElementById("senderName").value;
             const note = document.getElementById("note").value;
 
-            // ตรวจสอบความครบถ้วน
             if (!receiver || !subject) {
                 alert("❌ กรุณากรอก 'ถึง' และ 'เรื่อง' ให้ครบถ้วน");
                 return;
@@ -143,9 +140,8 @@
             const btn = document.getElementById("btnSubmit");
             const btnText = document.getElementById("btnText");
             
-            // สถานะกำลังโหลด
             btn.disabled = true;
-            btnText.innerText = "⏳ กำลังออกเลขหนังสือ...";
+            btnText.innerText = "⏳ กำลังออกเลข...";
 
             const payload = {
                 action: "registerOut",
@@ -165,14 +161,13 @@
 
                 if (result.status === "success") {
                     alert("✅ ออกเลขสำเร็จ: " + result.bookNo);
-                    liff.closeWindow(); // ปิดหน้าต่าง LIFF ทันทีเมื่อสำเร็จ
+                    liff.closeWindow();
                 } else {
                     alert("❌ ข้อผิดพลาด: " + result.message);
                     btn.disabled = false;
                     btnText.innerText = "บันทึกและออกเลข";
                 }
             } catch (error) {
-                console.error("Submit Error:", error);
                 alert("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
                 btn.disabled = false;
                 btnText.innerText = "บันทึกและออกเลข";
