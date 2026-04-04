@@ -109,47 +109,51 @@
     </div>
 
     <script>
-        const LIFF_ID = "2009665125-rCgx9yza"; 
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyUMu39fxB4AwJEH9I1jFQGyPa_AtyR1bciPxpbAMcuD2Y0-DXgFl7HKU6Iv540GweQ/exec";
+    // 1. ใส่ URL ที่ได้จากการ Deploy ล่าสุด (ต้องเป็น Version ใหม่หลังจากแก้ Code ใน GAS)
+    const LIFF_ID = "2009665125-rCgx9yza"; 
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyUMu39fxB4AwJEH9I1jFQGyPa_AtyR1bciPxpbAMcuD2Y0-DXgFl7HKU6Iv540GweQ/exec";
 
-        async function main() {
-            try {
-                await liff.init({ liffId: LIFF_ID });
-                if (!liff.isLoggedIn()) {
-                    liff.login();
-                } else {
-                    const profile = await liff.getProfile();
-                    document.getElementById("userImg").src = profile.pictureUrl;
-                    // ไม่ดึงชื่อลงช่อง name อัตโนมัติ เพื่อให้ผู้ใช้พิมพ์ชื่อจริงพร้อมนามสกุลเอง
-                }
-            } catch (err) { console.error(err); }
-        }
-        main();
-
-        async function submitRegister() {
-            const rank = document.getElementById("rank").value;
-            const name = document.getElementById("name").value;
-            const phone = document.getElementById("phone").value;
-            const email = document.getElementById("email").value;
-            const jobLine = document.getElementById("jobLine").value;
-            const station = document.getElementById("station").value;
-            const region = document.getElementById("region").value;
-
-            if (!rank || !name || !phone) {
-                alert("กรุณาเลือกยศ ระบุชื่อ-นามสกุล และเบอร์โทรศัพท์ครับ");
-                return;
+    async function main() {
+        try {
+            await liff.init({ liffId: LIFF_ID });
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            } else {
+                const profile = await liff.getProfile();
+                document.getElementById("userImg").src = profile.pictureUrl;
             }
+        } catch (err) { 
+            console.error("LIFF Init Error:", err); 
+        }
+    }
+    main();
 
-            const btn = document.getElementById("btnReg");
-            btn.disabled = true;
-            btn.innerHTML = `<svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24"><!-- spinner svg --></svg> กำลังบันทึก...`;
+    async function submitRegister() {
+        const rank = document.getElementById("rank").value;
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const email = document.getElementById("email").value;
+        const jobLine = document.getElementById("jobLine").value;
+        const station = document.getElementById("station").value;
+        const region = document.getElementById("region").value;
 
+        if (!rank || !name || !phone) {
+            alert("กรุณาเลือกยศ ระบุชื่อ-นามสกุล และเบอร์โทรศัพท์ครับ");
+            return;
+        }
+
+        const btn = document.getElementById("btnReg");
+        const originalBtnText = btn.innerHTML;
+        
+        btn.disabled = true;
+        btn.innerHTML = `<span class="flex items-center"><svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> กำลังบันทึก...</span>`;
+
+        try {
             const profile = await liff.getProfile();
-            
-            // รวมยศและชื่อก่อนส่งไป GAS
             const fullName = rank + name; 
 
             const payload = {
+                action: "memberRegister", // เพิ่ม action ให้ชัดเจน
                 userId: profile.userId,
                 pictureUrl: profile.pictureUrl,
                 name: fullName, 
@@ -160,23 +164,30 @@
                 region: region
             };
 
-            fetch(GAS_URL, {
+            // ส่งข้อมูลไปยัง GAS
+            const response = await fetch(GAS_URL, {
                 method: "POST",
+                mode: "no-cors", // ใช้ no-cors เพื่อเลี่ยงปัญหานโยบายความปลอดภัยของบราวเซอร์
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    alert("ลงทะเบียนสมาชิก กก.สืบสวน 2 เรียบร้อยแล้ว!");
-                    liff.closeWindow();
-                }
-            })
-            .catch(err => {
-                alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
-                btn.disabled = false;
-                btn.innerHTML = "บันทึกข้อมูลและเข้าใช้งาน";
             });
+
+            // เนื่องจากใช้ no-cors เราจะไม่สามารถอ่าน JSON response ได้โดยตรง 
+            // แต่ถ้าส่งสำเร็จ ข้อมูลจะไปปรากฏใน Google Sheet ทันที
+            alert("บันทึกข้อมูลเรียบร้อยแล้ว!");
+            
+            // รอสักครู่เพื่อให้ระบบทำงานเสร็จก่อนปิดหน้าต่าง
+            setTimeout(() => {
+                liff.closeWindow();
+            }, 1500);
+
+        } catch (err) {
+            console.error("Submit Error:", err);
+            alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+            btn.disabled = false;
+            btn.innerHTML = originalBtnText;
         }
-    </script>
+    }
+</script>
 </body>
 </html>
