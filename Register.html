@@ -153,16 +153,12 @@
             const fullName = rank + name; 
 
             const payload = {
-                action: "memberRegister", // เพิ่ม action ให้ชัดเจน
-                userId: profile.userId,
-                pictureUrl: profile.pictureUrl,
-                name: fullName, 
-                phone: phone,
-                email: email,
-                jobLine: jobLine,
-                station: station,
-                region: region
-            };
+    action: "memberRegister", // ตรวจสอบว่ามีบรรทัดนี้
+    userId: profile.userId,
+    pictureUrl: profile.pictureUrl,
+    name: fullName,
+    // ... ข้อมูลอื่นๆ
+};
 
             // ส่งข้อมูลไปยัง GAS
             const response = await fetch(GAS_URL, {
