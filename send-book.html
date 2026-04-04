@@ -125,52 +125,48 @@
     init();
 
     async function submitData() {
-        const receiver = document.getElementById("receiver").value;
-        const subject = document.getElementById("subject").value;
-        const sender = document.getElementById("senderName").value;
-        const note = document.getElementById("note").value;
+    const receiver = document.getElementById("receiver").value;
+    const subject = document.getElementById("subject").value;
+    const sender = document.getElementById("senderName").value;
+    const note = document.getElementById("note").value;
 
-        if (!receiver || !subject) {
-            alert("❌ กรุณากรอก 'ถึง' และ 'เรื่อง' ให้ครบถ้วน");
-            return;
-        }
-
-        const btn = document.getElementById("btnSubmit");
-        const btnText = document.getElementById("btnText");
-        
-        btn.disabled = true;
-        btnText.innerText = "⏳ กำลังออกเลข...";
-
-        const payload = {
-            action: "registerOut",
-            userId: userData.userId,
-            pictureUrl: userData.pictureUrl,
-            receiver: receiver,
-            subject: subject,
-            sender: sender,
-            note: note || "-"
-        };
-
-        try {
-            // แก้ไขส่วน fetch POST ให้ข้ามปัญหา CORS ของ Google Apps Script
-            const response = await fetch(GAS_URL, {
-                method: "POST",
-                mode: "no-cors", // ใช้ no-cors เพื่อให้ข้อมูลส่งถึงแม้เบราว์เซอร์จะเตือน
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify(payload)
-            });
-
-            // เนื่องด้วยโหมด no-cors จะอ่าน JSON ลำบาก ให้รอสักครู่แล้วแจ้งสำเร็จ
-            alert("✅ ส่งข้อมูลการออกเลขเรียบร้อย!\nกรุณารอรับข้อความยืนยันใน LINE");
-            window.location.reload(); 
-
-        } catch (error) {
-            console.error(error);
-            alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ");
-            btn.disabled = false;
-            btnText.innerText = "บันทึกและออกเลข";
-        }
+    if (!receiver || !subject) {
+        alert("❌ กรุณากรอก 'ถึง' และ 'เรื่อง' ให้ครบถ้วน");
+        return;
     }
+
+    const btn = document.getElementById("btnSubmit");
+    const btnText = document.getElementById("btnText");
+    btn.disabled = true;
+    btnText.innerText = "⏳ กำลังออกเลข...";
+
+    // เตรียมข้อมูลส่งแบบดั้งเดิม (เพื่อเลี่ยง CORS 100%)
+    const formData = new URLSearchParams();
+    formData.append("action", "registerOut");
+    formData.append("userId", userData.userId);
+    formData.append("pictureUrl", userData.pictureUrl);
+    formData.append("receiver", receiver);
+    formData.append("subject", subject);
+    formData.append("sender", sender);
+    formData.append("note", note || "-");
+
+    try {
+        await fetch(GAS_URL, {
+            method: "POST",
+            body: formData, // ส่งแบบ formData
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        });
+
+        // เนื่องจากส่งข้ามโดเมน เราจะไม่รออ่าน JSON แต่จะถือว่าสำเร็จถ้าไม่มี Error
+        alert("✅ ออกเลขสำเร็จ!\nกรุณาตรวจสอบการแจ้งเตือนใน LINE");
+        window.location.reload();
+
+    } catch (error) {
+        alert("❌ เกิดข้อผิดพลาด");
+        btn.disabled = false;
+        btnText.innerText = "บันทึกและออกเลข";
+    }
+}
 </script>
 </body>
 </html>
