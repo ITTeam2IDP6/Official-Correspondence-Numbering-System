@@ -68,21 +68,27 @@
 
         // ฟังก์ชันดึงข้อมูล (เพิ่ม ?action=getSettings)
         async function fetchData() {
-            toggleLoading(true);
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=getSettings`);
-                const data = await res.json();
-                if (data.status === "success") {
-                    document.getElementById('prefix').value = data.prefix || "";
-                    document.getElementById('lastNumber').value = data.lastOut || "";
-                    document.getElementById('year').value = data.year || "";
-                }
-            } catch (e) {
-                alert("โหลดข้อมูลล้มเหลว: " + e);
-            } finally {
-                toggleLoading(false);
-            }
+    toggleLoading(true);
+    // เปลี่ยนจาก fetch เฉพาะ URL เป็นใส่ action เข้าไปด้วยเพื่อให้ doGet ทำงานถูก
+    const finalUrl = `${SCRIPT_URL}?action=getSettings`;
+    
+    try {
+        // ใช้โหมด no-cors หรือเรียกผ่าน Proxy ถ้ายังติด แนะนำให้ใช้ Google Apps Script URL ที่ Deploy เป็น Public
+        const res = await fetch(finalUrl);
+        const data = await res.json();
+        
+        if (data.status === "success") {
+            document.getElementById('prefix').value = data.prefix || "";
+            document.getElementById('lastNumber').value = data.lastOut || ""; // เลขส่งล่าสุด
+            document.getElementById('year').value = data.year || "";
         }
+    } catch (e) {
+        console.error("Fetch Error:", e);
+        // ถ้าติด CORS จริงๆ ลองเปิด Link SCRIPT_URL ในเบราว์เซอร์ตรงๆ เพื่อเช็คว่า Google อนุญาตหรือยัง
+    } finally {
+        toggleLoading(false);
+    }
+}
 
         // ฟังก์ชันบันทึกข้อมูล (เพิ่ม action: "updateSettings")
         async function saveData() {
