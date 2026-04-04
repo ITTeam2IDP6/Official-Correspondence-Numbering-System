@@ -57,6 +57,65 @@
         </footer>
     </div>
 
+   <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+
+    <div class="max-w-md mx-auto min-h-screen bg-white shadow-xl flex flex-col">
+        <header class="bg-indigo-600 p-6 text-white text-center rounded-b-3xl shadow-lg">
+            <h1 class="text-xl font-bold italic"><i class="fas fa-cog mr-2"></i> ตั้งค่าระบบ</h1>
+            <p class="text-xs opacity-80 mt-1">จัดการ Prefix และเลขรันล่าสุด</p>
+        </header>
+
+        <main class="p-6 flex-grow">
+            <div id="loading" class="text-center py-10">
+                <div class="animate-spin text-indigo-600 text-3xl"><i class="fas fa-circle-notch"></i></div>
+                <p class="mt-2 text-sm text-gray-500">กำลังโหลดข้อมูล...</p>
+            </div>
+
+            <div id="app-form" class="hidden space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Prefix (ส่วนหน้า)</label>
+                    <input type="text" id="prefix" placeholder="เช่น ตช 0021.23/" 
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">เลขส่งล่าสุด</label>
+                    <input type="number" id="lastNumber" placeholder="เช่น 683" 
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">ปี พ.ศ.</label>
+                    <input type="text" id="year" placeholder="เช่น 2569" 
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                </div>
+
+                <div class="pt-4 space-y-3">
+                    <button onclick="saveData()" id="btnSave" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-200 transition active:scale-95 flex justify-center items-center">
+                        <i class="fas fa-save mr-2"></i> บันทึกข้อมูล
+                    </button>
+                    <button onclick="fetchData()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-3 rounded-2xl transition">
+                        รีเฟรชข้อมูล
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="p-4 text-center text-[10px] text-gray-400 border-t">
+            Powered by GitHub + LINE LIFF
+        </footer>
+    </div>
+
     <script>
         // --- ส่วนการตั้งค่า ---
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwde12sz8vLxH-14fbIGpWOpeqXVVtfADO2C90SrEH-CNnw-O8BrH_ms5-ikplQgXA/exec";
@@ -130,6 +189,12 @@
 
         initLIFF();
     </script>
+
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</body>
+</html>
 
     <style>
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
